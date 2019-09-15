@@ -1,7 +1,10 @@
 #coding: utf-8
 import os, sys
-import pymysql, redis
+import lib
+
+lib.config.ReadFromFile('config.json')
 
 def Main():
-	while True:
-		if redis.
+	submission_id = lib.redis.GetNextQueueingSubmission()
+
+Main()

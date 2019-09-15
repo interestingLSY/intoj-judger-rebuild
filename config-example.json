@@ -1,0 +1,13 @@
+{
+	"database": {
+		"name": "intoj",
+        "user": "root",
+        "host": "localhost",
+        "pass": ""
+	},
+	"redis": {
+		"host": "localhost",
+        "port": "6379",
+        "pass": ""
+	}
+}
