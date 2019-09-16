@@ -1,4 +1,5 @@
-import redis
+from redis import StrictRedis
+import config
 
 def NewConnection():
 	return StrictRedis(
@@ -10,4 +11,8 @@ def NewConnection():
 
 def GetNextQueueingSubmission():
 	redis = NewConnection()
-	
+	return redis.lpop('intoj-waiting-judge')
+
+def NewQueueingSubmission(submission_id):
+	redis = NewConnection()
+	redis.rpush('intoj-waiting-judge',submission_id)

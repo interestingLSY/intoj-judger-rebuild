@@ -9,5 +9,12 @@
 		"host": "localhost",
         "port": "6379",
         "pass": ""
+	},
+	"languages": {
+		"cpp": {
+			"extension": "cpp",
+			"compile_command": "g++ {source} -o {exe} -O2 -lm -fmax_errors=4 -w",
+			"run_command": "./${exe}"
+		}
 	}
 }
