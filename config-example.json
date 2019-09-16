@@ -10,10 +10,15 @@
         "port": "6379",
         "pass": ""
 	},
+	"compilation": {
+		"max_time": 10000,
+		"max_memory": 1024,
+		"max_output": 163840
+	},
 	"languages": {
 		"cpp": {
 			"extension": "cpp",
-			"compile_command": "g++ {source} -o {exe} -O2 -lm -fmax_errors=4 -w",
+			"compile_command": "g++ {source} -o {exe} -O2 -lm -fmax-errors=4 -w",
 			"run_command": "./${exe}"
 		}
 	}

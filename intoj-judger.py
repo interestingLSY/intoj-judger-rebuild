@@ -9,7 +9,8 @@ def Main():
 	if submission_id == None: return
 
 	lib.log.Log('green','New Task: ',submission_id)
-	lib.reedis.NewQueueingSubmission(submission_id)
+	# lib.reedis.NewQueueingSubmission(submission_id)
+	lib.db.Execute('UPDATE submissions SET status=0 WHERE id=%s',submission_id)
 
 	submission_info = lib.db.GetSubmissionInfo(submission_id)
 	lib.log.Log('cyan','Submission info:')
@@ -20,6 +21,7 @@ def Main():
 	lib.log.Log('none','language:\t',submission_info['language'])
 	lib.log.Log('none','submit_time:\t',submission_info['submit_time'])
 
+	compile_config = lib.config.config['compilation']
 	language_config = lib.config.config['languages'][submission_info['language']]
 	code_filename = 'main.%s'%language_config['extension']
 	code_abs_path = os.path.abspath('temp/%s'%code_filename)
@@ -29,9 +31,17 @@ def Main():
 	with open(code_abs_path,'w') as codefile:
 		codefile.write(submission_info['code'])
 
-	compilation_result = lib.compile.Compile(code_abs_path,exe_abs_path,language_config)
+	compile_result = lib.compile.Compile(code_abs_path,exe_abs_path,os.path.abspath('temp/comp.txt'),language_config,compile_config)
+	if not compile_result['success']:
+		lib.log.Log('yellow','Result: ','Compile Error.')
+		lib.db.Execute('UPDATE submissions SET status=3, compilier_message=%s WHERE id=%s',(compile_result['message'],submission_id))
+		return
+	else:
+		lib.log.Log('green','Result: ','Compilation Passed.')
+		lib.db.Execute('UPDATE submissions SET status=12, compilier_message=%s WHERE id=%s',(compile_result['message'],submission_id))
+		return
 
 lib.log.Log('green','Intoj-judger starts running at',datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S'))
 while True:
 	Main()
-	time.sleep(10)
+	time.sleep(1)
