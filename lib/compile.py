@@ -2,14 +2,14 @@
 import os
 import log
 
-def Compile(code_abs_path,exe_abs_path,temp_abs_path,language_config,compile_config):
+def Compile(code_path,exe_path,temp_path,language_config,compile_config):
 	log.Log('cyan','Compiling...')
-	log.Log('none','Code: ',code_abs_path)
-	log.Log('none','Exe: ',exe_abs_path)
+	log.Log('none','Code: ',code_path)
+	log.Log('none','Exe: ',exe_path)
 
 	compile_command = language_config['compile_command'].format(
-		source = code_abs_path,
-		exe = exe_abs_path )
+		source = code_path,
+		exe = exe_path )
 	log.Log('none','Compile command: ',compile_command)
 
 	message = os.popen(' \
@@ -23,7 +23,7 @@ def Compile(code_abs_path,exe_abs_path,temp_abs_path,language_config,compile_con
 			max_memory = compile_config['max_memory']*1024*1024,
 			max_output = compile_config['max_output'],
 			compile_command = compile_command,
-			temp_file = temp_abs_path
+			temp_file = temp_path
 		)
 	).read()
 
@@ -39,8 +39,10 @@ def Compile(code_abs_path,exe_abs_path,temp_abs_path,language_config,compile_con
 
 	exitcode = int(message[message.find('EXITCODE'):message.find('TERMSIG')][8:].strip())
 	if exitcode != 0:
-		compilier_message = open(temp_abs_path,'r').read()
+		log.Log('yellow','Result: ','Compile Error.')
+		compilier_message = open(temp_path,'r').read()
 		print(compilier_message)
 		return { 'success': False, 'message': compilier_message }
 	else:
+		log.Log('green','Compilation Passed.')
 		return { 'success': True, 'message': '' }
