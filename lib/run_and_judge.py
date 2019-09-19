@@ -77,7 +77,13 @@ def RunAndJudge(
 		'memory_usage': 0,
 		'status': 0,
 		'score': 0,
-		'cases': [ {} for i in range(testcases_count) ]
+		'cases': [ {
+			'status': 1,
+			'time_usage': 0,
+			'memory_usage': 0,
+			'score': 0,
+			'full_score': 0
+		} for i in range(testcases_count) ]
 	}
 	overall_status = 0
 	UpdateInfo(submission_id,result)
