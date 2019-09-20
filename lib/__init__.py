@@ -2,6 +2,7 @@ from . import compile
 from . import config
 from . import db
 from . import data_delegate
+from . import judge
 from . import log
 from . import lrun
 from . import modules

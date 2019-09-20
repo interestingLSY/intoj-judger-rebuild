@@ -5,9 +5,11 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 lib.config.ReadFromFile('config.json')
-comp_temp_path = os.path.abspath('temp/comp.txt')
-stdout_temp_path = os.path.abspath('temp/stdout.txt')
-stderr_temp_path = os.path.abspath('temp/stderr.txt')
+lib.config.config['comp_temp_path'] = os.path.abspath('temp/comp.txt')
+lib.config.config['stdout_path'] = os.path.abspath('temp/stdout.txt')
+lib.config.config['stderr_path'] = os.path.abspath('temp/stderr.txt')
+lib.config.config['lrun_temp_path'] = os.path.abspath('temp/lrun.txt')
+lib.config.config['diff_temp_path'] = os.path.abspath('temp/diff.txt')
 
 def JudgerMain(submission_id):
 	lib.db.Execute('UPDATE submissions SET status=0, score=0, detail="{}", time_usage=0, memory_usage=0, compilier_message="", system_message="" WHERE id=%s',submission_id)
@@ -34,7 +36,6 @@ def JudgerMain(submission_id):
 	compile_result = lib.compile.Compile(
 		code_path = code_path,
 		exe_path = exe_path,
-		temp_path = comp_temp_path,
 		language_config = language_config,
 		compile_config = compile_config
 	)
@@ -58,8 +59,6 @@ def JudgerMain(submission_id):
 		testdata_path = testdata_path,
 		code_path = code_path,
 		exe_path = exe_path,
-		stdout_path = stdout_temp_path,
-		stderr_path = stderr_temp_path
 	)
 
 def Main():

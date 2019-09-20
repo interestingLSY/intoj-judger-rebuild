@@ -1,5 +1,5 @@
 import sys, os, time, json
-import config, db, log, lrun
+import config, db, log, lrun, judge
 
 def Run(
 		data_config,
@@ -7,9 +7,11 @@ def Run(
 		input_rel_path,
 		output_rel_path,
 		input_path,
-		output_path,
-		stdout_path,
-		stderr_path):
+		output_path
+	):
+	stdout_path = config.config['stdout_path']
+	stderr_path = config.config['stderr_path']
+
 	run_command = '{exe}'.format(exe=exe_path)
 	run_result = lrun.Run(' \
 		lrun \
@@ -17,12 +19,14 @@ def Run(
 		--max-memory {memory_limit} \
 		--max-output {output_limit} \
 		{run_command} \
+		<{input_path} \
 		1>{stdout_file} \
 		2>{stderr_file}'.format(
 			time_limit = data_config['time_limit']/1000.0,
 			memory_limit = data_config['memory_limit']*1024*1024,
-			output_limit = config.config['running']['max_output']*1024,
+			output_limit = config.config['running']['max_output']*1024*1024,
 			run_command = run_command,
+			input_path = input_path,
 			stdout_file = stdout_path,
 			stderr_file = stderr_path
 		)
@@ -31,7 +35,7 @@ def Run(
 	input_preview = open(input_path,'r').read(config.config['previews']['input'])
 	output_preview = open(output_path,'r').read(config.config['previews']['output'])
 	stdout_preview = open(stdout_path,'r').read(config.config['previews']['stdout'])
-	stderr_preview = open(stdout_path,'r').read(config.config['previews']['stderr'])
+	stderr_preview = open(stderr_path,'r').read(config.config['previews']['stderr'])
 
 	result = {
 		'input_rel_path': input_rel_path,
@@ -41,19 +45,25 @@ def Run(
 		'stdout_preview': stdout_preview,
 		'stderr_preview': stderr_preview,
 		'time_usage': run_result['cpu_time'],
-		'memory_usage': run_result['memory']
+		'memory_usage': run_result['memory'],
+		'runner_message': ''
 	}
 
 	if run_result['exceed'] == 'OUTPUT':
 		result['status'] = 6
+		result['runner_message'] = 'Output limit exceed:\nThe output limit is %d M.'%config.config['running']['max_output']
 	elif run_result['exceed'] == 'REAL_TIME':
 		result['status'] = 7
+		result['runner_message'] = 'Time limit exceed:\nThe time limit is %d ms.'%data_config['time_limit']
 	elif run_result['exceed'] == 'MEMORY':
 		result['status'] = 8
-	elif run_result['exitcode'] != 0:
+		result['runner_message'] = 'Memory limit exceed:\nThe memory limit is %d M.'%data_config['memory_limit']
+	elif run_result['signaled'] != 0:
 		result['status'] = 9
+		result['runner_message'] = 'Runtime error:\nThe termsig is %d.'%run_result['termsig']
 	else:
 		result['status'] = 11
+
 	return result
 
 def UpdateInfo(submission_id,result):
@@ -66,9 +76,8 @@ def RunAndJudge(
 		data_config,
 		testdata_path,
 		code_path,
-		exe_path,
-		stdout_path,
-		stderr_path):
+		exe_path
+	):
 	log.Log('cyan','Running...')
 
 	testcases_count = data_config['data']['testcasesCount']
@@ -85,7 +94,7 @@ def RunAndJudge(
 			'full_score': 0
 		} for i in range(testcases_count) ]
 	}
-	overall_status = 0
+	all_statuses = []
 	UpdateInfo(submission_id,result)
 
 	for id in range(1,testcases_count+1):
@@ -100,9 +109,7 @@ def RunAndJudge(
 			input_rel_path = input_rel_path,
 			output_rel_path = output_rel_path,
 			input_path = input_path,
-			output_path = output_path,
-			stdout_path = stdout_path,
-			stderr_path = stderr_path
+			output_path = output_path
 		)
 		print(run_result)
 
@@ -110,15 +117,22 @@ def RunAndJudge(
 		run_result['full_score'] = full_score
 
 		result['cases'][id-1] = run_result
-		overall_status = max(overall_status,run_result['status'])
-		UpdateInfo(submission_id,result)
 
 		if run_result['status'] != 11:
 			result['cases'][id-1]['score'] = 0
-			continue
-		result['cases'][id-1]['score'] = full_score
-		result['score'] += full_score
+		else:
+			judge_result = judge.Judge(
+				data_config = data_config['data'],
+				input_path = input_path,
+				output_path = output_path
+			)
+			result['cases'][id-1]['status'] = judge_result['status']
+			result['cases'][id-1]['score'] = judge_result['score']*full_score/100.0
+			result['cases'][id-1]['judger_message'] = judge_result.get('judger_message')
+
+		result['score'] += result['cases'][id-1]['score']
+		all_statuses.append(result['cases'][id-1]['status'])
 		UpdateInfo(submission_id,result)
 
-	result['status'] = overall_status
+	result['status'] = min(all_statuses)
 	UpdateInfo(submission_id,result)

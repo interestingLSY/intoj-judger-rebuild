@@ -1,8 +1,13 @@
 #coding: utf-8
 import os
-import log, lrun
+import config, log, lrun
 
-def Compile(code_path,exe_path,temp_path,language_config,compile_config):
+def Compile(
+		code_path,
+		exe_path,
+		language_config,
+		compile_config
+	):
 	log.Log('cyan','Compiling...')
 	log.Log('none','Code: ',code_path)
 	log.Log('none','Exe: ',exe_path)
@@ -23,7 +28,7 @@ def Compile(code_path,exe_path,temp_path,language_config,compile_config):
 			max_memory = compile_config['max_memory']*1024*1024,
 			max_output = compile_config['max_output']*1024,
 			compile_command = compile_command,
-			temp_file = temp_path
+			temp_file = config.config['comp_temp_path']
 		)
 	)
 
@@ -38,7 +43,7 @@ def Compile(code_path,exe_path,temp_path,language_config,compile_config):
 
 	if result['exitcode'] != 0:
 		log.Log('yellow','Result: ','Compile Error.')
-		compilier_message = open(temp_path,'r').read()
+		compilier_message = open(config.config['comp_temp_path'],'r').read()
 		print(compilier_message)
 		return { 'success': False, 'message': compilier_message }
 	else:

@@ -21,5 +21,14 @@
 			"compile_command": "g++ {source} -o {exe} -O2 -lm -fmax-errors=4 -w",
 			"run_command": "./${exe}"
 		}
+	},
+	"previews": {
+		"input": 128,
+		"output": 128,
+		"stdout": 128,
+		"stderr": 256
+	},
+	"running": {
+		"max_output": 64
 	}
 }
