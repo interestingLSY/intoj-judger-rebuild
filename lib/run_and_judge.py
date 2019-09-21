@@ -1,5 +1,5 @@
 import sys, os, time, json
-import config, db, log, lrun, judge
+import config, db, log, lrun, judge, modules
 
 def Run(
 		data_config,
@@ -32,10 +32,10 @@ def Run(
 		)
 	)
 
-	input_preview = open(input_path,'r').read(config.config['previews']['input'])
-	output_preview = open(output_path,'r').read(config.config['previews']['output'])
-	stdout_preview = open(stdout_path,'r').read(config.config['previews']['stdout'])
-	stderr_preview = open(stderr_path,'r').read(config.config['previews']['stderr'])
+	input_preview = modules.GetPreview(input_path,config.config['previews']['input'])
+	output_preview = modules.GetPreview(output_path,config.config['previews']['output'])
+	stdout_preview = modules.GetPreview(stdout_path,config.config['previews']['stdout'])
+	stderr_preview = modules.GetPreview(stderr_path,config.config['previews']['stderr'])
 
 	result = {
 		'input_rel_path': input_rel_path,
@@ -44,7 +44,7 @@ def Run(
 		'output_preview': output_preview,
 		'stdout_preview': stdout_preview,
 		'stderr_preview': stderr_preview,
-		'time_usage': run_result['cpu_time'],
+		'time_usage': run_result['cpu_time'] if run_result['exceed'] != 'REAL_TIME' else run_result['real_time'],
 		'memory_usage': run_result['memory'],
 		'runner_message': ''
 	}
@@ -130,6 +130,8 @@ def RunAndJudge(
 			result['cases'][id-1]['score'] = judge_result['score']*full_score/100.0
 			result['cases'][id-1]['judger_message'] = judge_result.get('judger_message')
 
+		result['time_usage'] += run_result['time_usage']
+		result['memory_usage'] = max(result['memory_usage'],run_result['memory_usage'])
 		result['score'] += result['cases'][id-1]['score']
 		all_statuses.append(result['cases'][id-1]['status'])
 		UpdateInfo(submission_id,result)
