@@ -6,4 +6,4 @@ def GetPreview(path,length_limit):
 	if length <= length_limit:
 		return preview
 	if preview[-1] != '\n': preview += '\n'
-	return preview + '... (%d chars omitted)2315615188859745436w27268 mwxsz'%(length-length_limit)
+	return preview + '... (%d chars omitted)'%(length-length_limit)

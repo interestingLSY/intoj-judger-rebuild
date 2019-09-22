@@ -1,6 +1,6 @@
 #coding: utf-8
 import sys, os
-import config, log, lrun
+import config, log, lrun, modules
 
 def Judge(
 		data_config,
@@ -28,7 +28,7 @@ def Judge(
 		raise BaseException('在验证答案时出现错误: %s'%str(result))
 
 	if result['exitcode'] == 1:
-		judger_message = open(diff_temp_path,'r').read(config.config['previews']['judger_message'])
+		judger_message = modules.GetPreview(diff_temp_path,config.config['previews']['judger_message'])
 		return {
 			'status': 5,
 			'score': 0,

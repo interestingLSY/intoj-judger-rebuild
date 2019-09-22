@@ -17,6 +17,7 @@ def Run(
 		lrun \
 		--max-real-time {time_limit} \
 		--max-memory {memory_limit} \
+		--max-stack {memory_limit} \
 		--max-output {output_limit} \
 		{run_command} \
 		<{input_path} \
@@ -60,7 +61,7 @@ def Run(
 		result['runner_message'] = 'Memory limit exceed:\nThe memory limit is %d M.'%data_config['memory_limit']
 	elif run_result['signaled'] != 0:
 		result['status'] = 9
-		result['runner_message'] = 'Runtime error:\nThe termsig is %d.'%run_result['termsig']
+		result['runner_message'] = 'Runtime error:\nProgram exited abnormally with signal number %d and exitcode %d.'%(run_result['termsig'],run_result['exitcode'])
 	else:
 		result['status'] = 11
 
