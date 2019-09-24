@@ -21,9 +21,9 @@ def ValidateDataExistence(testdata_path,config):
 		input_filename = '%s%d%s' % (prefix,id,input_suffix)
 		output_filename = '%s%d%s' % (prefix,id,output_suffix)
 		if not os.path.exists(os.path.join(testdata_path,input_filename)):
-			raise BaseException('输入文件 %d%s 不存在'%(id,input_suffix))
+			raise BaseException('输入文件 %s 不存在'%input_filename)
 		if not os.path.exists(os.path.join(testdata_path,output_filename)):
-			raise BaseException('输出文件 %d%s 不存在'%(id,output_suffix))
+			raise BaseException('输出文件 %s 不存在'%output_filename)
 
 def Delegate(submission_id,submission_info,testdata_path):
 	log.Log('cyan','Fetching data info...')
