@@ -19,6 +19,7 @@ def Run(
 		--max-memory {memory_limit} \
 		--max-stack {memory_limit} \
 		--max-output {output_limit} \
+		--max-nfile 0 \
 		{run_command} \
 		<{input_path} \
 		1>{stdout_file} \
