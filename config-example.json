@@ -13,22 +13,27 @@
 	"compilation": {
 		"max_time": 10000,
 		"max_memory": 1024,
-		"max_output": 163840
+		"max_output": 20480
 	},
 	"languages": {
 		"cpp": {
 			"extension": "cpp",
-			"compile_command": "g++ {source} -o {exe} -O2 -lm -fmax-errors=4 -w",
-			"run_command": "./${exe}"
+			"compile_command": "g++ {source} -o {exe} -O2 -std=c++17 -fmax-errors=4 -w -static",
+			"run_command": "{exe}"
 		}
 	},
 	"previews": {
-		"input": 128,
-		"output": 128,
-		"stdout": 128,
-		"stderr": 256
+		"input": 256,
+		"output": 256,
+		"stdout": 256,
+		"stderr": 256,
+		"judger_message": 256
 	},
 	"running": {
 		"max_output": 64
+	},
+	"judging": {
+		"max_time": 10000,
+		"max_memory": 1024
 	}
 }

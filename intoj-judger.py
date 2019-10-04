@@ -59,6 +59,7 @@ def JudgerMain(submission_id):
 		testdata_path = testdata_path,
 		code_path = code_path,
 		exe_path = exe_path,
+		language_config = language_config
 	)
 
 def Main():

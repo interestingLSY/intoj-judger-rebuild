@@ -7,3 +7,7 @@ def GetPreview(path,length_limit):
 		return preview
 	if preview[-1] != '\n': preview += '\n'
 	return preview + '... (%d chars omitted)'%(length-length_limit)
+
+def EscapeFilename(filename):
+	filename.replace('"','\\"')
+	return filename

@@ -3,7 +3,7 @@ import config
 
 def Run(command):
 	lrun_temp_path = config.config['lrun_temp_path']
-	command += '  3>%s'%lrun_temp_path
+	command += '  3>"%s"'%lrun_temp_path
 	os.system(command)
 
 	message = open(lrun_temp_path,'r').readlines()

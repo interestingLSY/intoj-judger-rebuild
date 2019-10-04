@@ -1,6 +1,6 @@
 #coding:utf-8
 import sys, os, json
-import config, db, log
+import config, modules, db, log
 
 def GetTestdataInfo(testdata_path):
 	config_path = os.path.join(testdata_path,'config.json')

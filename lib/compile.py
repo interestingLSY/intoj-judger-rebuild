@@ -1,6 +1,6 @@
 #coding: utf-8
 import os
-import config, log, lrun
+import modules, config, log, lrun
 
 def Compile(
 		code_path,
@@ -23,7 +23,7 @@ def Compile(
 		--max-memory {max_memory} \
 		--max-output {max_output} \
 		{compile_command} \
-		2>{temp_file}'.format(
+		2>"{temp_file}"'.format(
 			max_time = compile_config['max_time']/1000.0,
 			max_memory = compile_config['max_memory']*1024*1024,
 			max_output = compile_config['max_output']*1024,

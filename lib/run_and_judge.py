@@ -7,12 +7,13 @@ def Run(
 		input_rel_path,
 		output_rel_path,
 		input_path,
-		output_path
+		output_path,
+		language_config
 	):
 	stdout_path = config.config['stdout_path']
 	stderr_path = config.config['stderr_path']
 
-	run_command = '{exe}'.format(exe=exe_path)
+	run_command = language_config['run_command'].format(exe=exe_path)
 	run_result = lrun.Run(' \
 		lrun \
 		--max-real-time {time_limit} \
@@ -21,9 +22,9 @@ def Run(
 		--max-output {output_limit} \
 		--max-nfile 0 \
 		{run_command} \
-		<{input_path} \
-		1>{stdout_file} \
-		2>{stderr_file}'.format(
+		<"{input_path}" \
+		1>"{stdout_file}" \
+		2>"{stderr_file}"'.format(
 			time_limit = data_config['time_limit']/1000.0,
 			memory_limit = data_config['memory_limit']*1024*1024,
 			output_limit = config.config['running']['max_output']*1024*1024,
@@ -78,7 +79,8 @@ def RunAndJudge(
 		data_config,
 		testdata_path,
 		code_path,
-		exe_path
+		exe_path,
+		language_config
 	):
 	log.Log('cyan','Running...')
 
@@ -108,10 +110,11 @@ def RunAndJudge(
 		run_result = Run(
 			data_config = data_config,
 			exe_path = exe_path,
-			input_rel_path = input_rel_path,
-			output_rel_path = output_rel_path,
-			input_path = input_path,
-			output_path = output_path
+			input_rel_path = modules.EscapeFilename(input_rel_path),
+			output_rel_path = modules.EscapeFilename(output_rel_path),
+			input_path = modules.EscapeFilename(input_path),
+			output_path = modules.EscapeFilename(output_path),
+			language_config = language_config
 		)
 		print(run_result)
 
@@ -125,8 +128,8 @@ def RunAndJudge(
 		else:
 			judge_result = judge.Judge(
 				data_config = data_config['data'],
-				input_path = input_path,
-				output_path = output_path
+				input_path = modules.EscapeFilename(input_path),
+				output_path = modules.EscapeFilename(output_path)
 			)
 			result['cases'][id-1]['status'] = judge_result['status']
 			result['cases'][id-1]['score'] = judge_result['score']*full_score/100.0

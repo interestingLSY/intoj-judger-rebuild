@@ -14,8 +14,8 @@ def Judge(
 		lrun \
 		--max-real-time {max_time} \
 		--max-memory {max_memory} \
-		diff -w {stdout} {output} \
-		>{diff_temp_path}'.format(
+		diff -w "{stdout}" "{output}" \
+		>"{diff_temp_path}"'.format(
 			max_time = config.config['judging']['max_time']/1000.0,
 			max_memory = config.config['judging']['max_memory']*1024*1024,
 			stdout = stdout_path,
