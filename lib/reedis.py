@@ -11,7 +11,12 @@ def NewConnection():
 
 def GetNextQueueingSubmission():
 	redis = NewConnection()
-	return redis.lpop('intoj-waiting-judge')
+	submission_id = redis.lpop('intoj-waiting-judge')
+	if submission_id != None:
+		return submission_id
+	else:
+		submission_id = redis.lpop('intoj-waiting-rejudge')
+		return submission_id
 
 def NewQueueingSubmission(submission_id):
 	redis = NewConnection()
