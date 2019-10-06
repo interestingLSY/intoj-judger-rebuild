@@ -5,8 +5,7 @@ import modules, config, log, lrun
 def Compile(
 		code_path,
 		exe_path,
-		language_config,
-		compile_config
+		language_config
 	):
 	log.Log('cyan','Compiling...')
 	log.Log('none','Code: ',code_path)
@@ -24,9 +23,9 @@ def Compile(
 		--max-output {max_output} \
 		{compile_command} \
 		2>"{temp_file}"'.format(
-			max_time = compile_config['max_time']/1000.0,
-			max_memory = compile_config['max_memory']*1024*1024,
-			max_output = compile_config['max_output']*1024,
+			max_time = config.config['compilation']['max_time']/1000.0,
+			max_memory = config.config['compilation']['max_memory']*1024*1024,
+			max_output = config.config['compilation']['max_output']*1024,
 			compile_command = compile_command,
 			temp_file = config.config['comp_temp_path']
 		)
@@ -42,7 +41,7 @@ def Compile(
 		raise ValueError('Unknown value for "EXCEED": %s'%exceed)
 
 	if result['exitcode'] != 0:
-		log.Log('yellow','Result: ','Compile Error.')
+		log.Log('yellow','Compile Error.')
 		compilier_message = open(config.config['comp_temp_path'],'r').read()
 		print(compilier_message)
 		return { 'success': False, 'message': compilier_message }

@@ -10,6 +10,13 @@ def GetTestdataInfo(testdata_path):
 	config = json.loads(open(config_path,'r').read())
 	return config
 
+def ValidateSPJExistence(testdata_path,config):
+	if config.get('spj') == None:
+		return
+	spj_path = os.path.join(testdata_path,config['spj']['filename'])
+	if not os.path.exists(spj_path):
+		raise BaseException('special judge 程序 %s 不存在'%config['spj']['filename'])
+
 def ValidateDataExistenceWithoutSubtask(testdata_path,config):
 	count = int(config['testcasesCount'])
 	prefix = config['prefix']
@@ -26,7 +33,8 @@ def ValidateDataExistenceWithoutSubtask(testdata_path,config):
 def ValidataDataExistenceWithSubtask(testdata_path,config):
 	input_suffix = config['inputSuffix']
 	output_suffix = config['outputSuffix']
-	for subtask in config['subtasks']:
+	for _subtask_id,subtask in enumerate(config['subtasks']):
+		subtask_id = _subtask_id + 1
 		count = int(subtask['testcasesCount'])
 		prefix = subtask['prefix']
 		score = subtask['score']
@@ -37,6 +45,9 @@ def ValidataDataExistenceWithSubtask(testdata_path,config):
 				raise BaseException('输入文件 %s 不存在'%input_filename)
 			if not os.path.exists(os.path.join(testdata_path,output_filename)):
 				raise BaseException('输出文件 %s 不存在'%output_filename)
+		for reliance in subtask.get('rely',[]):
+			if reliance >= subtask_id or reliance < 1:
+				raise BaseException('Subtask %d 依赖了 Subtask %d'%(subtask_id,reliance))
 
 def Delegate(submission_id,submission_info,testdata_path):
 	log.Log('cyan','Fetching data info...')
@@ -61,6 +72,7 @@ def Delegate(submission_id,submission_info,testdata_path):
 		ValidateDataExistenceWithoutSubtask(testdata_path,data_config['data'])
 	else:
 		ValidataDataExistenceWithSubtask(testdata_path,data_config['data'])
+	ValidateSPJExistence(testdata_path,data_config['data'])
 	log.Log('green','Validated.')
 
 	return data_config

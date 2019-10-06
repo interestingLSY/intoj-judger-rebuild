@@ -134,7 +134,7 @@ def RunAndJudgeWithoutSubtask(
 			result['cases'][id-1]['score'] = 0
 		else:
 			judge_result = judge.Judge(
-				data_config = data_config['data'],
+				data_config = data_config,
 				input_path = modules.EscapeFilename(input_path),
 				output_path = modules.EscapeFilename(output_path)
 			)
@@ -186,11 +186,35 @@ def RunAndJudgeWithSubtask(
 	}
 
 	subtask_statuses = []
-	for subtask_id, subtask in enumerate(data_config['data']['subtasks']):
-		# subtask_id indexs from 0
+	for _subtask_id, subtask in enumerate(data_config['data']['subtasks']):
+		subtask_id = _subtask_id + 1
 		print('Running on subtask %d...'%subtask_id)
 
-		result['subtasks'][subtask_id]['status'] = 0
+		skip_this_subtask = 0
+		for reliance in subtask.get('rely',[]):
+			if result['subtasks'][reliance-1]['status'] not in [10,11]:
+				skip_this_subtask = 1
+				break
+		if skip_this_subtask:
+			result['subtasks'][subtask_id-1] = {
+				'name': subtask.get('name',''),
+				'status': 13,
+				'time_usage': 0,
+				'memory_usage': 0,
+				'score': 0,
+				'full_score': subtask['score'],
+				'cases': [{
+					'status': 13,
+					'time_usage': 0,
+					'memory_usage': 0,
+					'score': 0,
+					'full_score': subtask['score']
+				} for i in range(subtask['testcasesCount']) ]
+			}
+			UpdateInfo(submission_id,result)
+			continue
+
+		result['subtasks'][subtask_id-1]['status'] = 0
 		UpdateInfo(submission_id,result)
 		subtask_result = {
 			'name': subtask.get('name',''),
@@ -211,7 +235,7 @@ def RunAndJudgeWithSubtask(
 		testcases_count = subtask['testcasesCount']
 		cases_statuses = []
 		for id in range(1,testcases_count+1):
-			result['subtasks'][subtask_id]['cases'][id-1]['status'] = 0
+			result['subtasks'][subtask_id-1]['cases'][id-1]['status'] = 0
 			UpdateInfo(submission_id,result)
 
 			input_rel_path = '%s%d%s' % (subtask['prefix'],id,data_config['data']['inputSuffix'])
@@ -236,7 +260,7 @@ def RunAndJudgeWithSubtask(
 				case_result['score'] = 0
 			else:
 				judge_result = judge.Judge(
-					data_config = data_config['data'],
+					data_config = data_config,
 					input_path = modules.EscapeFilename(input_path),
 					output_path = modules.EscapeFilename(output_path)
 				)
@@ -252,13 +276,14 @@ def RunAndJudgeWithSubtask(
 			subtask_result['cases'][id-1] = case_result
 
 			subtask_result['score'] = min(subtask_result['score'],case_result['score'])
-			result['subtasks'][subtask_id] = subtask_result
-			UpdateInfo(submission_id,result)
-
 			if case_result['score'] < 0.0001:
 				for i in range(id+1,testcases_count+1):
 					subtask_result['cases'][i-1]['status'] = 13
+				result['subtasks'][subtask_id-1] = subtask_result
 				break
+
+			result['subtasks'][subtask_id-1] = subtask_result
+			UpdateInfo(submission_id,result)
 
 		subtask_result['status'] = min(cases_statuses)
 		subtask_statuses.append(subtask_result['status'])

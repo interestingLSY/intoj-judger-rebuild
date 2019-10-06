@@ -10,6 +10,7 @@ lib.config.config['stdout_path'] = os.path.abspath('temp/stdout.txt')
 lib.config.config['stderr_path'] = os.path.abspath('temp/stderr.txt')
 lib.config.config['lrun_temp_path'] = os.path.abspath('temp/lrun.txt')
 lib.config.config['diff_temp_path'] = os.path.abspath('temp/diff.txt')
+lib.config.config['spj_exe_path'] = os.path.abspath('temp/spj')
 
 def JudgerMain(submission_id):
 	lib.db.Execute('UPDATE submissions SET status=0, score=0, detail="{}", time_usage=0, memory_usage=0, compilier_message="", system_message="" WHERE id=%s',submission_id)
@@ -23,7 +24,6 @@ def JudgerMain(submission_id):
 	lib.log.Log('none','language:\t',submission_info['language'])
 	lib.log.Log('none','submit_time:\t',submission_info['submit_time'])
 
-	compile_config = lib.config.config['compilation']
 	language_config = lib.config.config['languages'][submission_info['language']]
 	code_filename = 'main.%s'%language_config['extension']
 	code_path = os.path.abspath('temp/%s'%code_filename)
@@ -36,12 +36,11 @@ def JudgerMain(submission_id):
 	compile_result = lib.compile.Compile(
 		code_path = code_path,
 		exe_path = exe_path,
-		language_config = language_config,
-		compile_config = compile_config
+		language_config = language_config
 	)
 	lib.db.Execute('UPDATE submissions SET compilier_message=%s WHERE id=%s',(compile_result['message'],submission_id))
 	if not compile_result['success']:
-		lib.db.Execute('UPDATE submissions SET status=3 WHERE id=%s',submission_id)
+		lib.db.Execute('UPDATE submissions SET status=4 WHERE id=%s',submission_id)
 		return
 
 	if not os.path.exists('data'):
@@ -51,6 +50,19 @@ def JudgerMain(submission_id):
 		raise BaseException('目录 %s 不存在'%testdata_path)
 
 	data_config = lib.data_delegate.Delegate(submission_id,submission_info,testdata_path)
+
+	if data_config['data'].get('spj') != None:
+		spj_config = data_config['data']['spj']
+		spj_language_config = lib.config.config['languages'][spj_config['language']]
+		spj_filename = spj_config['filename']
+		spj_path = os.path.abspath(os.path.join(testdata_path,spj_filename))
+		spj_compile_result = lib.compile.Compile(
+			code_path = spj_path,
+			exe_path = lib.config.config['spj_exe_path'],
+			language_config = spj_language_config
+		)
+		if not spj_compile_result['success']:
+			raise BaseException('Special Judge Compile Error: \n%s'%spj_compile_result['message'])
 
 	lib.run_and_judge.RunAndJudge(
 		submission_id = submission_id,
