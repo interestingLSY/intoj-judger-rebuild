@@ -25,6 +25,8 @@ def ValidateDataExistenceWithoutSubtask(testdata_path,config):
 	for id in range(1,count+1):
 		input_filename = '%s%d%s' % (prefix,id,input_suffix)
 		output_filename = '%s%d%s' % (prefix,id,output_suffix)
+		if '..' in input_filename or '..' in output_filename:
+			raise BaseException('文件名中不应含有 ..')
 		if not os.path.exists(os.path.join(testdata_path,input_filename)):
 			raise BaseException('输入文件 %s 不存在'%input_filename)
 		if not os.path.exists(os.path.join(testdata_path,output_filename)):
@@ -41,6 +43,8 @@ def ValidataDataExistenceWithSubtask(testdata_path,config):
 		for id in range(1,count+1):
 			input_filename = '%s%d%s' % (prefix,id,input_suffix)
 			output_filename = '%s%d%s' % (prefix,id,output_suffix)
+			if '..' in input_filename or '..' in output_filename:
+				raise BaseException('文件名中不应含有 ..')
 			if not os.path.exists(os.path.join(testdata_path,input_filename)):
 				raise BaseException('输入文件 %s 不存在'%input_filename)
 			if not os.path.exists(os.path.join(testdata_path,output_filename)):
