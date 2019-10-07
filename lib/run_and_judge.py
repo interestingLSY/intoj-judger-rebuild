@@ -48,7 +48,7 @@ def Run(
 		'output_preview': output_preview,
 		'stdout_preview': stdout_preview,
 		'stderr_preview': stderr_preview,
-		'time_usage': run_result['cpu_time'] if run_result['exceed'] != 'REAL_TIME' else run_result['real_time'],
+		'time_usage': run_result['real_time'] if run_result['exceed'] != 'REAL_TIME' else run_result['real_time'],
 		'memory_usage': run_result['memory'],
 		'runner_message': ''
 	}
