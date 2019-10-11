@@ -1,6 +1,6 @@
 #coding: utf-8
 import sys, os
-import config, log, lrun, modules
+import config, log, lrun, modules, static
 
 def JudgeByTextCompare(
 		data_config,
@@ -30,13 +30,13 @@ def JudgeByTextCompare(
 	if result['exitcode'] == 1:
 		judger_message = modules.GetPreview(diff_temp_path,config.config['previews']['judger_message'])
 		return {
-			'status': 5,
+			'status': static.name_to_id['Wrong Answer'],
 			'score': 0,
 			'judger_message': judger_message
 		}
 	else:
 		return {
-			'status': 11,
+			'status': static.name_to_id['Accepted'],
 			'score': 100
 		}
 
@@ -71,38 +71,38 @@ def JudgeBySpecialJudge(
 
 	if run_result['exitcode'] == 0:		# AC
 		return {
-			'status': 11,
+			'status': static.name_to_id['Accepted'],
 			'score': 100,
 			'judger_message': spj_message
 		}
 	elif run_result['exitcode'] == 1:	# WA
 		return {
-			'status': 5,
+			'status': static.name_to_id['Wrong Answer'],
 			'score': 0,
 			'judger_message': spj_message
 		}
 	elif run_result['exitcode'] == 2:	# PE
 		return {
-			'status': 5,
+			'status': static.name_to_id['Wrong Answer'],
 			'score': 0,
 			'judger_message': spj_message
 		}
 	elif run_result['exitcode'] in [3,4,8]:	# SPJ Judgement Failed
 		return {
-			'status': 3,
+			'status': static.name_to_id['SPJ Judgement Failed'],
 			'score': 0,
 			'judger_message': spj_message
 		}
 	elif run_result['exitcode'] in [7]:		# PC
 		score = float(spj_message.split()[1]) * 100
 		return {
-			'status': 10,
+			'status': static.name_to_id['Partially Accepted'],
 			'score': score,
 			'judger_message': spj_message
 		}
 	else:
 		return {
-			'status': 3,
+			'status': static.name_to_id['SPJ Judgement Failed'],
 			'score': 0,
 			'judger_message': 'Unknown exitcode: %d'%run_result['exitcode']
 		}

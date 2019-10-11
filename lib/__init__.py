@@ -8,3 +8,4 @@ from . import lrun
 from . import modules
 from . import reedis
 from . import run_and_judge
+from . import static

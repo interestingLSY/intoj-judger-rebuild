@@ -1,6 +1,6 @@
 #coding: utf-8
 import sys, os, time, json
-import config, db, log, lrun, judge, modules
+import config, db, log, lrun, judge, modules, static
 
 def Run(
 		data_config,
@@ -54,19 +54,19 @@ def Run(
 	}
 
 	if run_result['exceed'] == 'OUTPUT':
-		result['status'] = 6
+		result['status'] = static.name_to_id['Output Limit Exceeded']
 		result['runner_message'] = 'Output limit exceed:\nThe output limit is %d M.'%config.config['running']['max_output']
 	elif run_result['exceed'] == 'REAL_TIME':
-		result['status'] = 7
+		result['status'] = static.name_to_id['Time Limit Exceeded']
 		result['runner_message'] = 'Time limit exceed:\nThe time limit is %d ms.'%data_config['time_limit']
 	elif run_result['exceed'] == 'MEMORY':
-		result['status'] = 8
+		result['status'] = static.name_to_id['Memory Limit Exceeded']
 		result['runner_message'] = 'Memory limit exceed:\nThe memory limit is %d M.'%data_config['memory_limit']
 	elif run_result['signaled'] != 0:
-		result['status'] = 9
+		result['status'] = static.name_to_id['Runtime Error']
 		result['runner_message'] = 'Runtime error:\nProgram exited abnormally with signal number %d and exitcode %d.'%(run_result['termsig'],run_result['exitcode'])
 	else:
-		result['status'] = 11
+		result['status'] = static.name_to_id['Accepted']
 
 	return result
 
@@ -92,10 +92,10 @@ def RunAndJudgeWithoutSubtask(
 	result = {
 		'time_usage': 0,
 		'memory_usage': 0,
-		'status': 0,
+		'status': static.name_to_id['Running'],
 		'score': 0,
 		'cases': [ {
-			'status': 1,
+			'status': static.name_to_id['Waiting'],
 			'time_usage': 0,
 			'memory_usage': 0,
 			'score': 0,
@@ -106,7 +106,7 @@ def RunAndJudgeWithoutSubtask(
 	UpdateInfo(submission_id,result)
 
 	for id in range(1,testcases_count+1):
-		result['cases'][id-1]['status'] = 0
+		result['cases'][id-1]['status'] = static.name_to_id['Running']
 		UpdateInfo(submission_id,result)
 
 		input_rel_path = '%s%d%s' % (data_config['data']['prefix'],id,data_config['data']['inputSuffix'])
@@ -130,7 +130,7 @@ def RunAndJudgeWithoutSubtask(
 
 		result['cases'][id-1] = run_result
 
-		if run_result['status'] != 11:
+		if run_result['status'] != static.name_to_id['Accepted']:
 			result['cases'][id-1]['score'] = 0
 		else:
 			judge_result = judge.Judge(
@@ -166,17 +166,17 @@ def RunAndJudgeWithSubtask(
 		'subtask': True,
 		'time_usage': 0,
 		'memory_usage': 0,
-		'status': 0,
+		'status': static.name_to_id['Running'],
 		'score': 0,
 		'subtasks': [ {
 			'name': subtask.get('name',''),
-			'status': 1,
+			'status': static.name_to_id['Waiting'],
 			'time_usage': 0,
 			'memory_usage': 0,
 			'score': 0,
 			'full_score': subtask['score'],
 			'cases': [{
-				'status': 1,
+				'status': static.name_to_id['Waiting'],
 				'time_usage': 0,
 				'memory_usage': 0,
 				'score': 0,
@@ -192,19 +192,19 @@ def RunAndJudgeWithSubtask(
 
 		skip_this_subtask = 0
 		for reliance in subtask.get('rely',[]):
-			if result['subtasks'][reliance-1]['status'] not in [10,11]:
+			if result['subtasks'][reliance-1]['status'] not in [static.name_to_id['Accepted'],static.name_to_id['Partially Accepted']]:
 				skip_this_subtask = 1
 				break
 		if skip_this_subtask:
 			result['subtasks'][subtask_id-1] = {
 				'name': subtask.get('name',''),
-				'status': 13,
+				'status': static.name_to_id['Skipped'],
 				'time_usage': 0,
 				'memory_usage': 0,
 				'score': 0,
 				'full_score': subtask['score'],
 				'cases': [{
-					'status': 13,
+					'status': static.name_to_id['Skipped'],
 					'time_usage': 0,
 					'memory_usage': 0,
 					'score': 0,
@@ -214,17 +214,17 @@ def RunAndJudgeWithSubtask(
 			UpdateInfo(submission_id,result)
 			continue
 
-		result['subtasks'][subtask_id-1]['status'] = 0
+		result['subtasks'][subtask_id-1]['status'] = static.name_to_id['Running']
 		UpdateInfo(submission_id,result)
 		subtask_result = {
 			'name': subtask.get('name',''),
-			'status': 0,
+			'status': static.name_to_id['Running'],
 			'time_usage': 0,
 			'memory_usage': 0,
 			'score': subtask['score'],
 			'full_score': subtask['score'],
 			'cases': [{
-				'status': 1,
+				'status': static.name_to_id['Waiting'],
 				'time_usage': 0,
 				'memory_usage': 0,
 				'score': 0,
@@ -235,7 +235,7 @@ def RunAndJudgeWithSubtask(
 		testcases_count = subtask['testcasesCount']
 		cases_statuses = []
 		for id in range(1,testcases_count+1):
-			result['subtasks'][subtask_id-1]['cases'][id-1]['status'] = 0
+			result['subtasks'][subtask_id-1]['cases'][id-1]['status'] = static.name_to_id['Running']
 			UpdateInfo(submission_id,result)
 
 			input_rel_path = '%s%d%s' % (subtask['prefix'],id,data_config['data']['inputSuffix'])
@@ -256,7 +256,7 @@ def RunAndJudgeWithSubtask(
 			case_result['full_score'] = subtask['score']
 			# print(run_result)
 
-			if case_result['status'] != 11:
+			if case_result['status'] != static.name_to_id['Accepted']:
 				case_result['score'] = 0
 			else:
 				judge_result = judge.Judge(
@@ -278,7 +278,7 @@ def RunAndJudgeWithSubtask(
 			subtask_result['score'] = min(subtask_result['score'],case_result['score'])
 			if case_result['score'] < 0.0001:
 				for i in range(id+1,testcases_count+1):
-					subtask_result['cases'][i-1]['status'] = 13
+					subtask_result['cases'][i-1]['status'] = static.name_to_id['Skipped']
 				result['subtasks'][subtask_id-1] = subtask_result
 				break
 

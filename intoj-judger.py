@@ -13,7 +13,8 @@ lib.config.config['diff_temp_path'] = os.path.abspath('temp/diff.txt')
 lib.config.config['spj_exe_path'] = os.path.abspath('temp/spj')
 
 def JudgerMain(submission_id):
-	lib.db.Execute('UPDATE submissions SET status=0, score=0, detail="{}", time_usage=0, memory_usage=0, compilier_message="", system_message="" WHERE id=%s',submission_id)
+	lib.db.Execute('UPDATE submissions SET status=%s, score=0, detail="{}", time_usage=0, memory_usage=0, compilier_message="", system_message="" WHERE id=%s',
+					(lib.static.name_to_id['Running'],submission_id))
 
 	submission_info = lib.db.GetSubmissionInfo(submission_id)
 	lib.log.Log('cyan','Submission info:')
@@ -40,7 +41,7 @@ def JudgerMain(submission_id):
 	)
 	lib.db.Execute('UPDATE submissions SET compilier_message=%s WHERE id=%s',(compile_result['message'],submission_id))
 	if not compile_result['success']:
-		lib.db.Execute('UPDATE submissions SET status=4 WHERE id=%s',submission_id)
+		lib.db.Execute('UPDATE submissions SET status=%s WHERE id=%s',(lib.static.name_to_id['Compile Error'],submission_id))
 		return
 
 	if not os.path.exists('data'):
@@ -87,7 +88,8 @@ def Main():
 	except BaseException as exception:
 		lib.log.Log('red','An Error occured:')
 		lib.log.Log('none',traceback.format_exc(exception))
-		lib.db.Execute('UPDATE submissions SET status=2, system_message=%s WHERE id=%s',(traceback.format_exc(exception),submission_id))
+		lib.db.Execute('UPDATE submissions SET status=%s, system_message=%s WHERE id=%s',
+						(name_to_id['System Error'],traceback.format_exc(exception),submission_id))
 
 lib.log.Log('green','Intoj-judger starts running at',datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S'))
 if not os.path.exists('temp'):
