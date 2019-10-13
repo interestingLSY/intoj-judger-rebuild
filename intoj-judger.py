@@ -89,7 +89,7 @@ def Main():
 		lib.log.Log('red','An Error occured:')
 		lib.log.Log('none',traceback.format_exc(exception))
 		lib.db.Execute('UPDATE submissions SET status=%s, system_message=%s WHERE id=%s',
-						(name_to_id['System Error'],traceback.format_exc(exception),submission_id))
+						(lib.static.name_to_id['System Error'],traceback.format_exc(exception),submission_id))
 
 lib.log.Log('green','Intoj-judger starts running at',datetime.datetime.now().strftime('%Y.%m.%d %H:%M:%S'))
 if not os.path.exists('temp'):
