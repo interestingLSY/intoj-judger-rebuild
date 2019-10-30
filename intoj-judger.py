@@ -22,7 +22,7 @@ def JudgerMain(submission_id):
 	lib.log.Log('none','id:\t\t',submission_id)
 	lib.log.Log('none','problem_id:\t',submission_info['problem_id'])
 	lib.log.Log('none','contest_id:\t',submission_info['contest_id'])
-	lib.log.Log('none','type:\t',submission_info['type'])
+	lib.log.Log('none','type:\t\t',submission_info['type'])
 	lib.log.Log('none','submitter:\t',submission_info['submitter'])
 	lib.log.Log('none','language:\t',submission_info['language'])
 	lib.log.Log('none','submit_time:\t',submission_info['submit_time'])
