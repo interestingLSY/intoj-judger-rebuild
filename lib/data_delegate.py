@@ -1,4 +1,4 @@
-#coding:utf-8
+# coding: utf-8
 import sys, os, json
 import config, modules, db, log
 

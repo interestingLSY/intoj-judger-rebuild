@@ -6,6 +6,7 @@ sys.setdefaultencoding('utf-8')
 
 lib.config.ReadFromFile('config.json')
 lib.config.config['comp_temp_path'] = os.path.abspath('temp/comp.txt')
+lib.config.config['custom_test_stdin_path'] = os.path.abspath('temp/stdin.txt')
 lib.config.config['stdout_path'] = os.path.abspath('temp/stdout.txt')
 lib.config.config['stderr_path'] = os.path.abspath('temp/stderr.txt')
 lib.config.config['lrun_temp_path'] = os.path.abspath('temp/lrun.txt')
@@ -21,6 +22,7 @@ def JudgerMain(submission_id):
 	lib.log.Log('none','id:\t\t',submission_id)
 	lib.log.Log('none','problem_id:\t',submission_info['problem_id'])
 	lib.log.Log('none','contest_id:\t',submission_info['contest_id'])
+	lib.log.Log('none','type:\t',submission_info['type'])
 	lib.log.Log('none','submitter:\t',submission_info['submitter'])
 	lib.log.Log('none','language:\t',submission_info['language'])
 	lib.log.Log('none','submit_time:\t',submission_info['submit_time'])
@@ -42,6 +44,16 @@ def JudgerMain(submission_id):
 	lib.db.Execute('UPDATE submissions SET compilier_message=%s WHERE id=%s',(compile_result['message'],submission_id))
 	if not compile_result['success']:
 		lib.db.Execute('UPDATE submissions SET status=%s WHERE id=%s',(lib.static.name_to_id['Compile Error'],submission_id))
+		return
+
+	if submission_info['type'] == 'custom_test':
+		lib.custom_test.CustomTest(
+			submission_id = submission_id,
+			submission_info = submission_info,
+			code_path = code_path,
+			exe_path = exe_path,
+			language_config = language_config
+		)
 		return
 
 	if not os.path.exists('data'):

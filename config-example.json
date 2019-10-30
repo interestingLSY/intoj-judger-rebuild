@@ -35,5 +35,10 @@
 	"judging": {
 		"max_time": 10000,
 		"max_memory": 1024
+	},
+	"custom_test": {
+		"max_time": 4000,
+		"max_memory": 1024,
+		"max_output_show": 256
 	}
 }

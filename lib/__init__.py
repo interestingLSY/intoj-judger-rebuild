@@ -1,5 +1,6 @@
 from . import compile
 from . import config
+from . import custom_test
 from . import db
 from . import data_delegate
 from . import judge
