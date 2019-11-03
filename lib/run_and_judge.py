@@ -276,7 +276,7 @@ def RunAndJudgeWithSubtask(
 			subtask_result['cases'][id-1] = case_result
 
 			subtask_result['score'] = min(subtask_result['score'],case_result['score'])
-			if case_result['score'] < 0.0001:
+			if case_result['status'] not in [static.name_to_id['Accepted'],static.name_to_id['Partially Accepted']]:
 				for i in range(id+1,testcases_count+1):
 					subtask_result['cases'][i-1]['status'] = static.name_to_id['Skipped']
 				result['subtasks'][subtask_id-1] = subtask_result
