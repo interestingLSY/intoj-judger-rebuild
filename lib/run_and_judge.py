@@ -17,7 +17,8 @@ def Run(
 	run_command = language_config['run_command'].format(exe=exe_path)
 	run_result = lrun.Run(' \
 		lrun \
-		--max-real-time {time_limit} \
+		--max-real-time {real_time_limit} \
+		--max-cpu-time {cpu_time_limit} \
 		--max-memory {memory_limit} \
 		--max-stack {memory_limit} \
 		--max-output {output_limit} \
@@ -26,7 +27,8 @@ def Run(
 		<"{input_path}" \
 		1>"{stdout_file}" \
 		2>"{stderr_file}"'.format(
-			time_limit = data_config['time_limit']/1000.0,
+			real_time_limit = data_config['time_limit']/1000.0 + 1,
+			cpu_time_limit = data_config['time_limit']/1000.0,
 			memory_limit = data_config['memory_limit']*1024*1024,
 			output_limit = config.config['running']['max_output']*1024*1024,
 			run_command = run_command,
@@ -48,7 +50,7 @@ def Run(
 		'output_preview': output_preview,
 		'stdout_preview': stdout_preview,
 		'stderr_preview': stderr_preview,
-		'time_usage': run_result['real_time'] if run_result['exceed'] != 'REAL_TIME' else run_result['real_time'],
+		'time_usage': run_result['cpu_time'] if run_result['exceed'] not in [ 'REAL_TIME' , 'CPU_TIME' ] else run_result['cpu_time'],
 		'memory_usage': run_result['memory'],
 		'runner_message': ''
 	}
@@ -56,7 +58,7 @@ def Run(
 	if run_result['exceed'] == 'OUTPUT':
 		result['status'] = static.name_to_id['Output Limit Exceeded']
 		result['runner_message'] = 'Output limit exceed:\nThe output limit is %d M.'%config.config['running']['max_output']
-	elif run_result['exceed'] == 'REAL_TIME':
+	elif run_result['exceed'] in [ 'REAL_TIME' , 'CPU_TIME' ]:
 		result['status'] = static.name_to_id['Time Limit Exceeded']
 		result['runner_message'] = 'Time limit exceed:\nThe time limit is %d ms.'%data_config['time_limit']
 	elif run_result['exceed'] == 'MEMORY':
