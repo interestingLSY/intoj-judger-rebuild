@@ -42,7 +42,7 @@ def Compile(
 
 	if result['exitcode'] != 0:
 		log.Log('yellow','Compile Error.')
-		compilier_message = open(config.config['comp_temp_path'],'r').read()
+		compilier_message = modules.GetPreview(config.config['comp_temp_path'],1024)
 		print(compilier_message)
 		return { 'success': False, 'message': compilier_message }
 	else:

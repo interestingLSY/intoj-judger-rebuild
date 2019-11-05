@@ -13,7 +13,7 @@
 	"compilation": {
 		"max_time": 10000,
 		"max_memory": 1024,
-		"max_output": 20480
+		"max_output": 40960
 	},
 	"languages": {
 		"cpp": {
