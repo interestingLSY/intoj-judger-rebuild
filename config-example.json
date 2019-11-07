@@ -18,6 +18,16 @@
 	"languages": {
 		"cpp": {
 			"extension": "cpp",
+			"compile_command": "g++ {source} -o {exe} -O2 -std=c++03 -fmax-errors=4 -w -static",
+			"run_command": "{exe}"
+		},
+		"cpp11": {
+			"extension": "cpp",
+			"compile_command": "g++ {source} -o {exe} -O2 -std=c++11 -fmax-errors=4 -w -static",
+			"run_command": "{exe}"
+		},
+		"cpp17": {
+			"extension": "cpp",
 			"compile_command": "g++ {source} -o {exe} -O2 -std=c++17 -fmax-errors=4 -w -static",
 			"run_command": "{exe}"
 		}
