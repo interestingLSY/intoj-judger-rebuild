@@ -1,3 +1,4 @@
+# coding: utf-8
 def Log(bkcolor,*args):
 	s = ''
 	for arg in args: s += str(arg)+' '
